@@ -235,23 +235,26 @@ WHERE dinner_rsvp = 1 AND vips.assoc_type = 'government'
 
 --Count how many VIPs are assigned to each event.
 
---LIST of events 
 SELECT
 	events.event_name,
-    COUNT(vips.member_id) = VIP_COUNT
+    COUNT(vips.member_id) AS VIP_COUNT
 FROM events
-JOIN vips
+LEFT JOIN vips
 ON events.event_id = vips.event
-GROUP BY event.event_id, events.event_name
-ORDER BY VIP_COUNT desc, event.event_name
+GROUP BY events.event_id, events.event_name
+ORDER BY VIP_COUNT desc, events.event_name
 ;
 
-SELECT 
-    e.event_name,
-    COUNT(v.member_id) AS attendee_count
-FROM events e
-LEFT JOIN vips v
-    ON e.event_id = v.event
-GROUP BY e.event_id, e.event_name
-ORDER BY attendee_count DESC, e.event_name;
+--Show hotel names and how many reservations each hotel has.
+
+SELECT
+	hotels.hotel_name,
+    COUNT(reservations.member_id) AS 'reservation_count'
+FROM hotels
+LEFT JOIN reservations
+ON hotels.hotel_id = reservations.hotel
+GROUP BY hotels.hotel_id, hotels.hotel_name
+ORDER BY reservation_count desc, hotels.hotel_name
+;
+
 
