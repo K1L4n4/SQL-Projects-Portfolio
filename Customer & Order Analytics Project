@@ -1,0 +1,94 @@
+DATABASE: BIT_DB
+Source: https://www.dropbox.com/scl/fi/vd10nx4bo5soq7xg78sdg/BIT_DB?rlkey=0yh592o2nl1766n8l6hod5uc9&e=1&dl=0
+
+The BIT_DB is a small database with monthly sales information.
+
+Tables: 
+customers : order_id, acctnum
+JanSales: orderID, Product, Quantity, price, orderdate, location
+FebSales: orderID, Product, Quantity, price, orderdate, location
+MarSales: orderID, Product, Quantity, price, orderdate, location
+AprSales: orderID, Product, Quantity, price, orderdate, location
+MaySales: orderID, Product, Quantity, price, orderdate, location
+
+        
+------------
+
+--Question #1. How many unique orders were placed in January? In other words, how many distinct order ids do we have?
+
+SELECT * FROM BIT_DB.JanSales; -- Check the data under Order_IDs to check for any missing or incorrect values
+
+
+SELECT COUNT(DISTINCT JanSales.orderID) AS Number_Orders  --Counts the number of distinct Order IDs
+FROM BIT_DB.JanSales
+WHERE length(JanSales.orderID) = 6      --Remove missing values and text; Order IDs consist of 6 digit numbers
+    AND JanSales.orderID <> 'Order ID'
+;
+
+--Question #2. How many of those orders were for an iPhone?
+
+SELECT COUNT(DISTINCT JanSales.orderID) AS Number_Orders  --Counts the number of distinct Order IDs
+FROM BIT_DB.JanSales
+WHERE length(JanSales.orderID) = 6      --Remove missing values and text; Order IDs consist of 6 digit numbers
+    AND JanSales.orderID <> 'Order ID'
+    AND JanSales.Product = 'iPhone'
+;
+
+--Question #3. Select the customer account numbers for all the orders that were placed in February.
+
+SELECT
+    DISTINCT customers.acctnum,
+    FebSales.orderID
+FROM customers
+INNER JOIN FebSales
+ON customers.order_id = FebSales.orderID
+WHERE customers.order_id <> 'Order ID' AND length (customers.order_id)= 6
+;
+
+--Question #4. Which product was the cheapest one sold in January, and what was the price?
+
+SELECT
+    JanSales.Product,
+    MIN(JanSales.price)
+FROM JanSales
+WHERE length(JanSales.orderID) = 6      --Remove missing values and text; Order IDs consist of 6 digit numbers
+    AND JanSales.orderID <> 'Order ID'
+
+;
+
+--Question #5. What is the total revenue for each product sold in January?
+--(Revenue can be calculated using the number of products sold and the price of the products).
+
+SELECT
+    JanSales.Product,
+    SUM(JanSales.Quantity)*JanSales.price AS 'Revenue'
+FROM BIT_DB.JanSales
+WHERE length(JanSales.orderID) = 6 AND JanSales.orderID <> 'Order ID'
+GROUP BY JanSales.Product
+;
+
+--Question #6. Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?
+
+SELECT
+    FebSales.Product,
+    SUM(FebSales.Quantity),
+    SUM(FebSales.Quantity)*FebSales.price AS 'Revenue'
+FROM BIT_DB.FebSales
+WHERE FebSales.location = '548 Lincoln St, Seattle, WA 98101'
+GROUP BY FebSales.Product
+;
+
+--Question #7. How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+
+SELECT
+    COUNT(DISTINCT customers.acctnum),
+    AVG(FebSales.Quantity*FebSales.price) AS 'Avg Sales'
+FROM BIT_DB.customers
+RIGHT JOIN BIT_DB.FebSales
+ON customers.order_id = FebSales.orderID
+WHERE FebSales.Quantity > 2 AND length(FebSales.orderID) = 6 AND FebSales.orderID <> 'Order ID'
+;
+
+
+
+
