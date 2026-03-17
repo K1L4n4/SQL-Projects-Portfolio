@@ -89,6 +89,75 @@ ON customers.order_id = FebSales.orderID
 WHERE FebSales.Quantity > 2 AND length(FebSales.orderID) = 6 AND FebSales.orderID <> 'Order ID'
 ;
 
+------------------ PART 2
+--Query 1. How many of each type of headphone were sold in February?
+
+--In other words, what is the sum of the quantity of products sold that have “headphones” in the name from the February dataset? Group the results by product.
+
+SELECT
+    FebSales.Product,    
+    SUM(FebSales.Quantity)
+FROM BIT_DB.FebSales
+WHERE FebSales.Product LIKE '%Headphones%' AND FebSales.orderID <> 'Order ID' AND length(FebSales.orderID) = 6
+GROUP BY FebSales.Product
+;
+
+--Query 2.What was the average amount spent per account in February?
+
+--In other words, what is the average amount spent / number of accounts, not the amount spent by each account.
+
+
+SELECT
+    AVG(FebSales.Quantity*FebSales.price) AS 'Avg spent per account'
+FROM BIT_DB.customers
+    RIGHT JOIN BIT_DB.FebSales
+    ON customers.order_id = FebSales.orderID
+    WHERE FebSales.orderID <> 'Order ID' AND length(FebSales.orderID) = 6
+;
+
+--Query 3. Find order ids from Georgia (GA) where the order has an average price greater than $1,000. 
+--Only find orders from dates beginning with ‘04/1’. 
+--Assume that the dates are stored in the MM/DD/YY HH:MM format.
+
+SELECT
+    AprSales.orderID
+FROM BIT_DB.AprSales
+WHERE length(AprSales.orderID) = 6
+AND AprSales.orderID <> 'Order ID'
+AND AprSales.orderdate LIKE '04/1%'
+AND AprSales.location LIKE '%GA%'
+GROUP BY AprSales.orderID
+HAVING AVG(AprSales.price) > 1000
+;
+
+--Query 4. You’ve been given the following results from the MaySales table. Can you reverse engineer a SQL query that returns these results?
+
+--The result set will naturally only return 10 rows (i.e., you will not have to use LIMIT to get to 10 results).
+
+SELECT
+   MaySales.location,
+   MaySales.orderID
+FROM BIT_DB.MaySales
+WHERE MaySales.orderID <> 'Order ID' AND length (MaySales.orderID) = 6 AND MaySales.orderID LIKE '1943_5'
+ORDER BY MaySales.orderID
+;
+
+--Query 5. Which product brought in the most revenue in January and how much revenue did it bring in total?
+
+--In other words, show the one product that generated the most revenue (revenue being equivalent to quantity of an item multiplied by the item’s price). 
+
+SELECT
+    JanSales.Product,
+    SUM(JanSales.Quantity * JanSales.price) AS 'Revenue'
+FROM BIT_DB.JanSales
+WHERE JanSales.orderID <> 'Order ID' AND length(JanSales.orderID) = 6
+GROUP BY JanSales.Product
+ORDER BY SUM(JanSales.Quantity * JanSales.price) desc
+LIMIT 1
+;
+
+
+
 
 
 
